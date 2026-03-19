@@ -1,0 +1,31 @@
+{
+  "logic_hunter_ai": {
+    "provider": "gemini",
+    "api_keys": [
+      "YOUR_GEMINI_API_KEY_HERE"
+    ],
+    "agents": {
+      "recon_agent": {
+        "model": "gemini-3.1-flash-lite-preview",
+        "description": "High-limit model for parsing large outputs like JS files and subdomains."
+      },
+      "validator_agent": {
+        "model": "gemini-3-flash-preview",
+        "description": "Smart model for filtering false positives and identifying logic bugs."
+      },
+      "report_writer": {
+        "model": "gemini-2.5-flash",
+        "description": "Excellent context window for drafting professional Bug Bounty reports."
+      }
+    }
+  },
+  "external_apis": {
+    "chaos_api_key": "",
+    "h1_api_token": ""
+  },
+  "scanners_config": {
+    "nuclei_severity": ["critical", "high", "medium"],
+    "ffuf_threads": 40,
+    "katana_depth": 3
+  }
+}
