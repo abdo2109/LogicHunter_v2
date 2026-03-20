@@ -1,180 +1,189 @@
-# LogicHunter 🦇
 
-**The Advanced AI-Powered Bug Bounty Framework. Web2 + Web3. Recon to Report.** *Built for the modern hacker.*
 
-[](https://www.python.org/downloads/)
-[](https://deepmind.google/technologies/gemini/)
-[](https://opensource.org/licenses/MIT)
+# LogicHunter_V2 🦇
 
-> **Dynamic AI Brains · Model Routing · Zero-Day Weapons · AI Report Generator**
+**AI-Orchestrated Bug Bounty Framework (Web2 + Web3)**
+*From Recon → Exploitation → Validation → Report*
 
-Most bug bounty toolkits give you a bag of scattered scripts. LogicHunter gives you an **AI-Orchestrated Agent Harness** that reasons about attack surfaces, validates what you find, deploys custom zero-day weapons, and writes reports that pay.
+> Not another scanner. This is a **decision engine + execution pipeline**.
 
-Instead of hardcoding a methodology, LogicHunter reads your recon output, maps it to the highest-ROI attack surface via dynamically loaded "Brains" (`skills/`), and drives custom tools to kill weak findings before you waste time writing them up.
+---
 
------
+## ⚠️ What This Actually Is (No BS)
 
-## 🧠 Why Google Gemini? (And Can I Use Claude?)
+LogicHunter does NOT magically find bugs.
 
-In Bug Bounty, context is everything. We chose **Google Gemini** as the core AI engine for three critical reasons:
+It:
 
-1.  **The Massive Context Window:** Gemini offers up to **2 Million tokens**. You can dump entire JavaScript bundles, massive `httpx` outputs, thousands of subdomains, or raw Burp Suite HTTP histories directly into the prompt without the model "forgetting" the beginning.
-2.  **Cost-Effective Model Routing:** LogicHunter uses a smart `config.json` router. It sends massive, noisy recon data to `gemini-3.1-flash-lite-preview` (cheap & fast), complex logic analysis to `gemini-3-flash-preview`, and report drafting to `gemini-2.5-flash` (high quality).
-3.  **Speed & Native Audio/Video:** Gemini's response time for large datasets outpaces competitors, which is crucial for live, parallel hunting.
+* reads recon output
+* prioritizes attack surface
+* executes targeted modules
+* validates signals
+* produces structured reports
 
-**Want to use Claude (Anthropic) instead?** Absolutely. LogicHunter's architecture is deeply modular (ECC-Style Plugin Architecture). You can easily swap the AI core by modifying the `ai_engine.py` file to use the `anthropic` SDK while keeping the entire framework, tools, prompts, and `skills/` directory completely intact.
+Everything is built around one idea:
 
------
+> **Stop wasting time on weak signals.**
 
-## 🏗 Architecture & Workflow
+---
+
+## 🧠 Core Philosophy
+
+Most tools:
+
+> run → dump results → you manually think
+
+LogicHunter:
+
+> think → choose attack → execute → validate → report
+
+---
+
+## 🏗 Real Workflow
 
 ```text
-Target ──▶ Recon ──▶ Brain (Skill Load) ──▶ Attack/Fuzz ──▶ Validate ──▶ Report
-           │                │                    │             │            │
-           │                │                    │             │            └── zero_report.py
-           │                │                    │             └── validator_agent (AI)
-           │                │                    └── zero_sneaky.py / zero_idor.py / zero_race.py
-           │                └── skills/*.md (Web2, Web3, Smart Contracts, Custom Logic)
-           └── subfinder + httpx + nuclei + katana + ffuf + zero_dork.py
+Recon Data → AI Decision → Targeted Attack → Signal → Validation → Report
 ```
 
-### Why this beats scattered scripts:
+NOT:
 
-| Problem with scripts | How LogicHunter solves it |
-| :--- | :--- |
-| **No methodology** | Dynamic `skills/` directory. Load the exact methodology you need (Web2 vs Web3). |
-| **False positives** | `validator_agent` analyzes outputs and kills weak findings in seconds. |
-| **Reports get downgraded** | `report_writer` agent drafts H1/Bugcrowd templates with CVSS and impact language. |
-| **Scattered invocations** | Everything is orchestrated from a single interactive CLI shell. |
-| **Standard payloads fail** | Custom "Zero" tools (e.g., Invisible prompt injection, Race Condition spammer). |
+> spam everything and pray
 
------
+---
 
-## 🧠 Skills (Dynamic Brains)
+## 🔥 Where It Actually Helps
 
-LogicHunter doesn't force a single methodology. Drop any `.md` file into the `skills/` directory, and the AI will dynamically learn it and adopt that persona.
+* Large recon outputs (10k+ URLs / JS / subdomains)
+* Prioritizing attack vectors (IDOR vs SSRF vs Logic)
+* Killing false positives early
+* Structuring reports fast
 
-| Skill Domain | What It Contains | When to Use |
-| :--- | :--- | :--- |
-| **web2-recon.md** | Subdomain enum, live hosts, URL crawl, JS analysis, tech stack mapping. | Starting recon on a fresh target. |
-| **web2-vuln-classes.md** | Checklists for IDOR, XSS, SSRF, SQLi, Race Conditions, Business Logic. | Hunting specific vulnerability classes. |
-| **web3-audit.md** | DeFi bug classes, Reentrancy, Oracle Manipulation, Foundry PoC stubs. | Smart contract auditing. |
-| **Custom Skills** | *Add your own\!* The AI instantly adapts to your private methodology. | Anytime you want to automate your specific workflow. |
+---
 
-*Type `brains` in the console to list loaded skills. Type `brain <id>` to switch the AI's persona instantly.*
+## ❌ Where It DOES NOT Help
 
------
+* It won't replace manual logic thinking
+* It won't magically find 0days
+* It won't bypass auth unless the target is actually vulnerable
 
-## ⚔️ Tool Reference
+لو حد مش فاهم النقطة دي، الأداة دي مش ليه.
 
-### Core Intelligence Pipeline
+---
 
-| Tool | Role |
-| :--- | :--- |
-| **`logichunter.py`** | Master orchestrator — Interactive War Room CLI. |
-| **`ai_engine.py`** | GenAI integration, model routing, and context management. |
-| **`zero_report.py`** | Outputs formatted HackerOne/Bugcrowd/Immunefi reports. |
+## ⚔️ Attack Modules (Reality Check)
 
-### Advanced Attack Modules ("Zero" Tools)
+### `zero_idor.py`
 
-These are custom-built, logic-based hunting scripts designed to catch what automated scanners miss:
-| Tool | What It Hunts |
-| :--- | :--- |
-| **`zero_sneaky.py`** | **Invisible Prompt Injection & WAF Bypass.** Encodes payloads (like `<script>`) into invisible Unicode characters to bypass filters while still executing in browsers/LLMs. |
-| **`zero_idor.py`** | **Logic IDOR Tester.** Takes Victim/Attacker tokens, compares response lengths dynamically, and alerts on BOLA/IDOR vulnerabilities. |
-| **`zero_race.py`** | **Parallel Request Spammer.** Floods endpoints to exploit Race Conditions (TOCTOU, coupon reuse, limit overruns, 2FA bypass). |
-| **`attack_fuzzer.py`** | **Smart HTTP Logic Fuzzer.** Mutates parameters, flips HTTP methods, and catches edge cases and 500 Internal Server errors. |
-| **`zero_dork.py`** | **Targeted Leak Hunter.** Automates advanced Google Dorking for credentials, exposed panels, and PII leaks. |
-| **`zero_cve.py`** | **Critical CVE Scanner.** Wrapper for Nuclei that specifically filters and hunts for High/Critical known CVEs. |
+* Uses: token swapping + response diffing
+* Weakness: naive length-only detection is NOT enough
+* You should validate manually or extend with JSON diffing
 
------
+---
 
-## 🤖 Agents (Model Routing)
+### `zero_race.py`
 
-LogicHunter utilizes 3 specialized sub-agents defined in `config.json`.
+* Uses: parallel requests
+* Reality: NOT true race condition exploitation (no sync primitives)
+* Useful for: low-hanging race bugs only
 
-| Agent | Role | Recommended Model |
-| :--- | :--- | :--- |
-| **recon\_agent** | Parses massive outputs (thousands of subdomains, `katana` crawls, raw JS). | `gemini-3.1-flash-lite-preview` (Fast & Cheap) |
-| **validator\_agent** | Engages in chat, reads `skills/`, filters false positives, analyzes logic bugs. | `gemini-3-flash-preview` (Smart & Balanced) |
-| **report\_writer** | Generates professional H1/Bugcrowd reports, human tone, impact-first. | `gemini-2.5-flash` (High Quality) |
+---
 
------
+### `attack_fuzzer.py`
 
-## 🚀 Quick Start
+* Mutates parameters + methods
+* Good for:
 
-### 1\. Clone & Install
+  * edge cases
+  * logic breaks
+* NOT a replacement for Burp Intruder/Turbo Intruder
+
+---
+
+### `zero_sneaky.py`
+
+* Unicode payload obfuscation
+* Niche use-case (WAF / LLM bypass)
+* Don't expect magic results everywhere
+
+---
+
+## 🤖 AI Layer (Important)
+
+AI is used for:
+
+* prioritization
+* reasoning
+* filtering
+* report drafting
+
+AI is NOT:
+
+* a source of truth
+* always correct
+* safe from hallucination
+
+---
+
+## 🚀 Quick Start (FIXED)
 
 ```bash
-git clone https://github.com/YourUsername/LogicHunter.git
-cd LogicHunter
+git clone https://github.com/abdo2109/LogicHunter_v2.git
+cd LogicHunter_v2
 
-# Run the installer to grab Go tools (subfinder, httpx, nuclei, ffuf, katana, arjun)
 chmod +x install.sh
 ./install.sh
 
-# Install Python requirements
 pip install -r requirements.txt
 ```
 
-### 2\. Configure API Keys
+---
 
-Add your Gemini API Key to `config.json`.
-
-```json
-{
-  "api_keys": {
-    "gemini_api_key": "AIzaSyYourKeyHere..."
-  }
-}
-```
-
-### 3\. Enter the War Room
+## 🧪 Example Use (Realistic)
 
 ```bash
 python3 logichunter.py
 ```
 
-**Interactive Commands:**
-
-  * `hunt <target.com>` — Set target scope.
-  * `recon` — Run full asset discovery pipeline.
-  * `brains` — List available methodology files from the `skills/` folder.
-  * `tools` — Open the interactive community tool menu (Subfinder, Ffuf, Nuclei, etc.).
-  * `attack` — Deploy custom Zero modules (IDOR, Race Condition, Sneaky Bits).
-  * `report` — Generate a submission-ready Markdown report.
-
------
-
-## 📁 Directory Structure
-
-```text
-LogicHunter/
-├── logichunter.py            # Main CLI Orchestrator
-├── ai_engine.py              # AI Integration (Google GenAI API)
-├── config.json               # Model Routing & API Keys
-├── install.sh                # Setup script for Go-based tools
-├── requirements.txt          # Python dependencies
-│
-├── zero_dork.py              # Advanced Google Dork Automation
-├── zero_cve.py               # Targeted High/Critical CVE Scanner
-├── zero_idor.py              # Cross-User Authorization Tester
-├── zero_race.py              # Parallel Request Spammer
-├── zero_sneaky.py            # Invisible WAF Bypass Payload Generator
-├── attack_fuzzer.py          # HTTP Logic Fuzzer
-├── zero_report.py            # AI Report Writer / Drafter
-│
-├── skills/                   # [Dynamic Brains] Drop .md methodology files here
-├── wordlists/                # [Ammo] Drop .txt wordlists here (auto-read by ffuf)
-├── findings/                 # Output from attack modules and scanners
-└── reports/                  # Generated submission-ready Markdown reports
+```bash
+hunt target.com
+recon
+attack
 ```
 
------
+Expected:
 
-## ⚖️ Rules of Engagement & Legal
+* NOT instant bugs
+* BUT structured attack direction
 
-1.  **Read Full Scope:** Verify every asset before the first request.
-2.  **Never Hunt Out-Of-Scope:** One stray request = potential ban.
-3.  **Impact-First:** "What is the worst thing an attacker can do if auth is broken?" This drives your target selection.
-4.  **Authorized Testing Only:** Only test targets within an approved bug bounty scope. Never test systems without explicit permission. Follow responsible disclosure practices. The authors are not responsible for any misuse.
+---
+
+## 🧠 Skills (Your Real Power)
+
+The strongest part of LogicHunter:
+
+> `skills/` = your brain
+
+Add:
+
+* your recon methodology
+* your bug hunting patterns
+* your checklists
+
+This is what actually scales your hunting.
+
+---
+
+## 📌 What You Should Do As A Hunter
+
+Don't just run it.
+
+Use it to:
+
+* guide thinking
+* speed execution
+* reduce noise
+
+---
+
+## ⚖️ Legal
+
