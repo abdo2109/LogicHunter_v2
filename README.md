@@ -1,130 +1,167 @@
-
-
-# LogicHunter_V2 🦇
+# LogicHunter v2 🦇
 
 **AI-Orchestrated Bug Bounty Framework (Web2 + Web3)**
 *From Recon → Exploitation → Validation → Report*
 
-> Not another scanner. This is a **decision engine + execution pipeline**.
+> Dynamic AI Brains · Model Routing · Logic-Based Attack Modules · AI-Assisted Reporting
+
+LogicHunter is not a scanner.
+It’s a **decision engine + execution pipeline** built for hunters who deal with large recon data and need to prioritize, test, and validate efficiently.
+
+Instead of hardcoding a static methodology, LogicHunter:
+
+* reads your recon output
+* maps attack surfaces using dynamic `skills/`
+* triggers targeted attack modules
+* filters weak signals
+* helps you generate structured reports
 
 ---
 
-## ⚠️ What This Actually Is (No BS)
+## ⚠️ What This Tool Actually Does
 
 LogicHunter does NOT magically find bugs.
 
-It:
+It helps you:
 
-* reads recon output
-* prioritizes attack surface
-* executes targeted modules
-* validates signals
-* produces structured reports
+* reduce noise from recon
+* focus on high-probability attack paths
+* automate repetitive attack patterns
+* structure findings into reports
 
-Everything is built around one idea:
+You still need:
 
-> **Stop wasting time on weak signals.**
-
----
-
-## 🧠 Core Philosophy
-
-Most tools:
-
-> run → dump results → you manually think
-
-LogicHunter:
-
-> think → choose attack → execute → validate → report
+> manual validation + real attacker thinking
 
 ---
 
-## 🏗 Real Workflow
+## 🧠 Why Google Gemini? (And Can I Use Claude?)
+
+In bug bounty, context matters more than anything.
+
+LogicHunter uses **Google Gemini** because:
+
+1. **Large Context Handling**
+
+   * Can process huge recon outputs (JS files, URLs, Burp logs)
+
+2. **Model Routing**
+
+   * Cheap models for parsing
+   * Better models for reasoning & reporting
+
+3. **Speed**
+
+   * Fast responses when dealing with large inputs
+
+### Can I use Claude?
+
+Yes.
+
+The architecture is modular:
+
+* Replace logic inside `ai_engine.py`
+* Keep everything else (skills, tools, flow)
+
+---
+
+## 🏗 Architecture & Workflow
 
 ```text
-Recon Data → AI Decision → Targeted Attack → Signal → Validation → Report
+Target ──▶ Recon ──▶ Brain (Skill Load) ──▶ Attack ──▶ Validate ──▶ Report
+           │                │                  │           │            │
+           │                │                  │           │            └── zero_report.py
+           │                │                  │           └── validator_agent (AI-assisted)
+           │                │                  └── zero_* modules (IDOR / Race / Fuzzer)
+           │                └── skills/*.md (methodology)
+           └── subfinder + httpx + nuclei + katana + ffuf + zero_dork.py
 ```
 
-NOT:
+---
 
-> spam everything and pray
+## ⚙️ How It Actually Works (Deep Dive)
+
+1. Recon data is collected (subdomains, URLs, JS, etc.)
+
+2. `recon_agent` parses and summarizes targets:
+
+   * endpoints
+   * parameters
+   * auth-required routes
+
+3. Selected skill (`skills/*.md`) defines attack methodology
+
+4. AI maps:
+
+   * endpoint → possible vuln class
+   * parameters → attack surface
+
+5. Attack module is triggered:
+
+   * IDOR → `zero_idor.py`
+   * Race → `zero_race.py`
+   * Logic fuzz → `attack_fuzzer.py`
+
+6. Output is analyzed:
+
+   * weak signals dropped
+   * interesting signals flagged
+
+7. Report is generated using `zero_report.py`
 
 ---
 
-## 🔥 Where It Actually Helps
+## 🧠 Skills (Dynamic Brains)
 
-* Large recon outputs (10k+ URLs / JS / subdomains)
-* Prioritizing attack vectors (IDOR vs SSRF vs Logic)
-* Killing false positives early
-* Structuring reports fast
+LogicHunter adapts based on loaded methodology.
 
----
+| Skill                | Purpose              |
+| -------------------- | -------------------- |
+| web2-recon.md        | Recon workflows      |
+| web2-vuln-classes.md | Bug class checklists |
+| web3-audit.md        | Smart contract logic |
+| Custom               | Your own methodology |
 
-## ❌ Where It DOES NOT Help
-
-* It won't replace manual logic thinking
-* It won't magically find 0days
-* It won't bypass auth unless the target is actually vulnerable
-
-لو حد مش فاهم النقطة دي، الأداة دي مش ليه.
+> `skills/` = your real power
 
 ---
 
-## ⚔️ Attack Modules (Reality Check)
+## ⚔️ Tool Reference
 
-### `zero_idor.py`
+### Core Pipeline
 
-* Uses: token swapping + response diffing
-* Weakness: naive length-only detection is NOT enough
-* You should validate manually or extend with JSON diffing
-
----
-
-### `zero_race.py`
-
-* Uses: parallel requests
-* Reality: NOT true race condition exploitation (no sync primitives)
-* Useful for: low-hanging race bugs only
+| Tool           | Role             |
+| -------------- | ---------------- |
+| logichunter.py | CLI orchestrator |
+| ai_engine.py   | AI integration   |
+| zero_report.py | Report generator |
 
 ---
 
-### `attack_fuzzer.py`
+### Attack Modules (Realistic View)
 
-* Mutates parameters + methods
-* Good for:
-
-  * edge cases
-  * logic breaks
-* NOT a replacement for Burp Intruder/Turbo Intruder
-
----
-
-### `zero_sneaky.py`
-
-* Unicode payload obfuscation
-* Niche use-case (WAF / LLM bypass)
-* Don't expect magic results everywhere
+| Tool             | What It Does                                                   |
+| ---------------- | -------------------------------------------------------------- |
+| zero_idor.py     | Token swapping + response comparison (needs manual validation) |
+| zero_race.py     | Parallel requests (basic race testing, not advanced sync)      |
+| attack_fuzzer.py | Parameter + method mutation                                    |
+| zero_sneaky.py   | Unicode-based payload obfuscation (niche use)                  |
+| zero_dork.py     | Targeted Google dorking                                        |
+| zero_cve.py      | Nuclei wrapper for critical CVEs                               |
 
 ---
 
-## 🤖 AI Layer (Important)
+## 🤖 Agents (Model Routing)
 
-AI is used for:
-
-* prioritization
-* reasoning
-* filtering
-* report drafting
-
-AI is NOT:
-
-* a source of truth
-* always correct
-* safe from hallucination
+| Agent           | Role                       |
+| --------------- | -------------------------- |
+| recon_agent     | parses large data          |
+| validator_agent | analyzes & filters signals |
+| report_writer   | generates reports          |
 
 ---
 
-## 🚀 Quick Start (FIXED)
+## 🚀 Quick Start
 
 ```bash
 git clone https://github.com/abdo2109/LogicHunter_v2.git
@@ -138,52 +175,63 @@ pip install -r requirements.txt
 
 ---
 
-## 🧪 Example Use (Realistic)
+## 🧪 Usage
 
 ```bash
 python3 logichunter.py
 ```
 
-```bash
-hunt target.com
-recon
-attack
+Commands:
+
+* `hunt target.com`
+* `recon`
+* `brains`
+* `attack`
+* `report`
+
+---
+
+## 📁 Directory Structure
+
+```text
+LogicHunter_v2/
+├── logichunter.py
+├── ai_engine.py
+├── config.json
+├── install.sh
+├── requirements.txt
+│
+├── zero_dork.py
+├── zero_cve.py
+├── zero_idor.py
+├── zero_race.py
+├── zero_sneaky.py
+├── attack_fuzzer.py
+├── zero_report.py
+│
+├── skills/
+├── wordlists/
+├── findings/
+└── reports/
 ```
 
-Expected:
+---
 
-* NOT instant bugs
-* BUT structured attack direction
+## ⚖️ Rules of Engagement
+
+* Respect scope
+* No out-of-scope testing
+* Authorized targets only
+* Follow responsible disclosure
 
 ---
 
-## 🧠 Skills (Your Real Power)
+## 🧠 Final Note
 
-The strongest part of LogicHunter:
-
-> `skills/` = your brain
-
-Add:
-
-* your recon methodology
-* your bug hunting patterns
-* your checklists
-
-This is what actually scales your hunting.
-
----
-
-## 📌 What You Should Do As A Hunter
-
-Don't just run it.
+LogicHunter is built to assist hunters — not replace them.
 
 Use it to:
 
-* guide thinking
-* speed execution
+* think faster
+* test smarter
 * reduce noise
-
----
-
-## ⚖️ Legal
-
